@@ -12,6 +12,7 @@ import (
 
 	"joi-energy-golang/endpoint/priceplans"
 	"joi-energy-golang/endpoint/readings"
+	"joi-energy-golang/endpoint/usagecost"
 	"joi-energy-golang/repository"
 )
 const (
@@ -71,6 +72,10 @@ func setUpServer() http.Handler {
 	pricePlansService := priceplans.NewService(pricePlansLogger, &pricePlans, &accounts)
 	mux.Handle("/price-plans/compare-all/", priceplans.MakeCompareAllPricePlansHandler(pricePlansService, pricePlansLogger))
 	mux.Handle("/price-plans/recommend/", priceplans.MakeRecommendPricePlansHandler(pricePlansService, pricePlansLogger))
+
+	usageCostLogger := log.WithField("endpoint", "usageCost")
+	usageCostService := usagecost.NewService(usageCostLogger, &meterReadings, &pricePlans, &accounts)
+	mux.Handle("/usage-cost/", usagecost.MakeCalculateLastWeekUsageCostHandler(usageCostService, usageCostLogger))
 
 	return mux
 }

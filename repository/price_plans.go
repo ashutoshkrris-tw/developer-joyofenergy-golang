@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"fmt"
 	"time"
 
 	"joi-energy-golang/domain"
 )
 
 type PricePlans struct {
-	pricePlans []domain.PricePlan
+	pricePlans    []domain.PricePlan
 	meterReadings *MeterReadings
 }
 
@@ -25,6 +26,21 @@ func (p *PricePlans) ConsumptionCostOfElectricityReadingsForEachPricePlan(smartM
 		costs[plan.PlanName] = calculateCost(electricityReadings, plan)
 	}
 	return costs
+}
+
+func (p *PricePlans) UsageCostOfLastWeekElectricityReadings(smartMeterId, pricePlanId string) float64 {
+	electricityReadings := p.meterReadings.GetReadingsWithinTime(smartMeterId, time.Now().Add(-time.Hour*24*7), time.Now())
+	average := calculateAverageReading(electricityReadings)
+	timeElapsed := calculateTimeElapsed(electricityReadings)
+	var pricePlan domain.PricePlan
+	for _, plan := range p.pricePlans {
+		if plan.PlanName == pricePlanId {
+			pricePlan = plan
+			break
+		}
+	}
+	fmt.Println(average, timeElapsed, pricePlan)
+	return average * timeElapsed.Hours() * pricePlan.UnitRate
 }
 
 func calculateCost(electricityReadings []domain.ElectricityReading, pricePlan domain.PricePlan) float64 {

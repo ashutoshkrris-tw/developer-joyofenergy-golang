@@ -62,3 +62,7 @@ type StoreReadings struct {
 	SmartMeterId        string `json:"smartMeterId"`
 	ElectricityReadings []ElectricityReading `json:"electricityReadings"`
 }
+
+type UsageCost struct {
+	Cost 	float64 `json:"usageCost"`
+}
